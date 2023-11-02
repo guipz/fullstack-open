@@ -69,7 +69,7 @@ function CountryWeather({ weather }) {
     return (
       <>
         <p>Temperature: {weather.main.temp} °C</p>
-        <img src={` https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`}/>
+        <img src={countryDataService.getIconImgURL(weather.weather[0].icon)}/>
         <p>Wind: {weather.wind.speed} M/s</p>
       </>
     )

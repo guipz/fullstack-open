@@ -13,7 +13,12 @@ function getCountryWeatherData(country) {
         .then((r) => r.data)
 }
 
+function getIconImgURL(icon) {
+    return `https://openweathermap.org/img/wn/${icon}.png`
+}
+
 export default {
     getAllCountries,
-    getCountryWeatherData
+    getCountryWeatherData,
+    getIconImgURL
 }
