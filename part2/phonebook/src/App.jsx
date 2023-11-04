@@ -4,6 +4,7 @@ import './App.css'
 
 function App() {
 
+
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
@@ -11,48 +12,59 @@ function App() {
   const [successMessage, setSuccessMessage] = useState(null) 
   const [errorMessage, setErrorMessage] = useState(null) 
 
+
   const handleNameChange = (e) => setNewName(e.target.value)
   const handleFilteredNameChange = (e) => setFilteredName(e.target.value)
   const handleNumberChange = (e) => setNewNumber(e.target.value)
-  const addPerson = (name, number) => phonebookService.addPerson({ name: name, number: number }).then((r) => {
-      setPersons(persons.concat(r))
-      showSuccessPrompt(`Added ${r.name}`)
-    });
-  const updatePerson = (person) => {phonebookService.updatePerson(person).then((r) => {
-      setPersons(persons.map(p => r.id !== p.id ? p : r))
-      showSuccessPrompt(`Updated ${r.name}`)
-  })}
   const isPersonRegistered = (name) => persons.filter((p) => p.name === name).length !== 0
-  const isNameValid = (name) => name.length !== 0
-  const isNumberValid = (number) => number.length !== 0 && number.match(/^[0-9|\-|\(|\)|+|\s]*$/)
+  const isNameValid = (name) => name.length >= 3
+  const isNumberValid = (number) => number.length >= 8 && number.match(/^\d{2,3}\-\d+$/)
   const getFilteredPersons = () => isFilteredNameValid() ? persons.filter((p) => p.name.toUpperCase().includes(filteredName.toUpperCase())) : persons
   const isFilteredNameValid = () => filteredName.trim().length != 0
   const showConfirmDeletePrompt = (name) => window.confirm(`Do you really want to delete ${name}?`)
   const updateConfirmPrompt = (name) => confirm(`${name} is already added to phonebook. Do you want to update the number?`)
+
+
   const showSuccessPrompt = (text) => {
     setSuccessMessage(text)
     setTimeout(() => setSuccessMessage(null), 5000)
   }
+
+
   const showErrorPrompt = (text) => {
     setErrorMessage(text)
     setTimeout(() => setErrorMessage(null), 5000)
   }
+
+  const addPerson = (name, number) => phonebookService.addPerson({ name: name, number: number }).then((r) => {
+    setPersons(persons.concat(r))
+    showSuccessPrompt(`Added ${r.name}`)
+  }).catch(e => showErrorPrompt(e.message));
+
+
+  const updatePerson = (person) => {phonebookService.updatePerson(person).then((r) => {
+      setPersons(persons.map(p => r.id !== p.id ? p : r))
+      showSuccessPrompt(`Updated ${r.name}`)
+  }).catch(e => showErrorPrompt(e.message))}
+
 
   const deletePerson = (person) => {
     if (showConfirmDeletePrompt(person.name))
       phonebookService.deletePerson(person).then(() => {
         setPersons(persons.filter(p => person.id !== p.id))
         showSuccessPrompt(`Removed ${person.name}`)
-      }).catch( error => {
-        showErrorPrompt(`${person.name} was already removed.`)
+      }).catch(e => {
+        showErrorPrompt(e.message)
         setPersons(persons.filter(p => p.id !== person.id))
       })
   }
+
 
   const handleFormSubmit = (e) => {
     e.preventDefault()
     addPersonIfValid(newName.trim(), newNumber.trim())
   }
+
 
   const addPersonIfValid = (newName, newNumber) => {
     if (isNameValid(newName) && isNumberValid(newNumber))
@@ -64,7 +76,8 @@ function App() {
       alert('Invalid name or number. Try again.')
   }
 
-  useEffect(() => { phonebookService.getPersons().then((p) => setPersons(p)) }, [])
+  
+  useEffect(() => { phonebookService.getPersons().then((p) => setPersons(p)).catch(e => showErrorPrompt(e.message))}, [])
 
   return (
     <div>

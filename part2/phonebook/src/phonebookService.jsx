@@ -1,25 +1,28 @@
 import axios from 'axios'
 
 const baseUrl = "/api/persons" 
+const unknownError = "Unknown error"
 
 function addPerson(person) {
-    return axios.post(baseUrl, person)
-        .then((r) => r.data)
+    return promisePostProcessing(axios.post(baseUrl, person))
 }
 
 function updatePerson(person) {
-    return axios.put(`${baseUrl}\\${person.id}`, person)
-        .then((r) => r.data)
+    return promisePostProcessing(axios.put(`${baseUrl}\\${person.id}`, person))
 }
 
 function getPersons() {
-    return axios.get(baseUrl)
-        .then((r) => r.data)
+    return promisePostProcessing(axios.get(baseUrl))
 }
 
 function deletePerson(person) {
-    return axios.delete(`${baseUrl}\\${person.id}`)
-        .then((r) => r.data)
+    return promisePostProcessing(axios.delete(`${baseUrl}\\${person.id}`))
+}
+
+function promisePostProcessing(p) {
+    return p.then(r => r.data).catch((p) => { 
+        throw ({ message: p.response.data.error? p.response.data.error: unknownError, status: p.response.status })
+    })
 }
 
 
