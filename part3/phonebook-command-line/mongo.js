@@ -11,10 +11,8 @@ if (lenArgs < 3 || lenArgs == 4) {
     process.exit(1)
 }
 
-const url = `mongodb+srv://gui:${process.argv[2]}@cluster0.tug8opw.mongodb.net/?retryWrites=true&w=majority`
-
 mongoose.set('strict', false)
-mongoose.connect(url)
+mongoose.connect(process.env.MONGODB_URL)
 
 const personSchema = new mongoose.Schema({
     name: String,
