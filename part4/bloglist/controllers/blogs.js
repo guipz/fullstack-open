@@ -20,20 +20,21 @@ blogsRouter.delete('/:id', middleWare.userExtractor, async (request, response) =
   if (blog) {
     response.status(204).end();
   } else {
-    response.status(404).json({ error: 'Blog not authenticated' });
+    response.status(404).json({ error: 'Blog not found' });
   }
 });
 
-blogsRouter.put('/:id', middleWare.userExtractor, async (request, response) => {
+blogsRouter.put('/:id', async (request, response) => {
   const blog = await Blog.findOneAndUpdate(
-    { _id: request.params.id, user: { _id: request.user._id } },
-    request.body,
+    { _id: request.params.id },
+    { ...request.body, user: request.body.user.id },
     { runValidators: true, new: true },
   );
   if (blog) {
+    await blog.populate('user', ['name', 'username', '_id']);
     response.status(200).json(blog);
   } else {
-    response.status(404).json({ error: 'Blog not authenticated' });
+    response.status(404).json({ error: 'Blog not found' });
   }
 });
 

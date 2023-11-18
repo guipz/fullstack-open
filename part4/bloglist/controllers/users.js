@@ -12,4 +12,16 @@ usersRouter.post('/', async (request, response) => {
   });
 });
 
+usersRouter.post('/login', async (request, response) => {
+  const { username, password } = request.body;
+  const user = await User.findOne({ username });
+  if (!user) {
+    response.status(404).json({ error: 'User not found' });
+  } else if (!(await user.isPasswordCorrect(password))) {
+    response.status(401).json({ error: 'Incorrect Password' });
+  } else {
+    response.json({ ...user.toJSON(), token: user.generateJWTToken() });
+  }
+});
+
 module.exports = usersRouter;

@@ -8,6 +8,7 @@ const logger = require('./utils/logger');
 const middleWare = require('./utils/middleware');
 const blogsRouter = require('./controllers/blogs');
 const usersRouter = require('./controllers/users');
+const testingRouter = require('./controllers/testing');
 
 const app = express();
 
@@ -28,6 +29,10 @@ app.use(express.static('dist'));
 app.use(express.json());
 
 app.use(middleWare.decodeJWTBearerToken);
+
+if (config.IS_TEST) {
+  app.use('/api/testing', testingRouter);
+}
 
 app.use('/api/blogs', blogsRouter);
 app.use('/api/users', usersRouter);
