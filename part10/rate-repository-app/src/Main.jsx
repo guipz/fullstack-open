@@ -11,6 +11,7 @@ import { ME } from "./graphql/queries";
 import { useAuthStorage } from "./context/AuthStorageContext";
 import Review from "./components/Review";
 import SignUp from "./components/SignUp";
+import MyReviews from "./components/MyReviews";
 
 const styles = StyleSheet.create({
   container: {
@@ -78,6 +79,15 @@ const Main = () => {
                   Create a review
                 </Text>
               </Pressable>
+              <Pressable onPress={() => navigate("/my-reviews")}>
+                <Text
+                  color={"textOnSecondary"}
+                  fontWeight={"bold"}
+                  fontSize={"subheading"}
+                >
+                  My reviews
+                </Text>
+              </Pressable>
               <Pressable onPress={SignOut}>
                 <Text
                   color={"textOnSecondary"}
@@ -97,6 +107,7 @@ const Main = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/:id" element={<RepositoryView />} />
         <Route path="/review" element={<Review />} />
+        <Route path="/my-reviews" element={<MyReviews />} />
       </Routes>
     </View>
   );

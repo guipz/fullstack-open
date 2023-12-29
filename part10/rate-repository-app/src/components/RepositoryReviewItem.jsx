@@ -37,9 +37,9 @@ const RepositoryReviewItem = ({ item }) => {
         {item.rating}
       </Text>
       <View style={styles.info}>
-        <Text fontWeight={"bold"}>{item.user.username}</Text>
+        <Text fontWeight={"bold"}>{item.title}</Text>
         <Text color={"textSecondary"}>{date}</Text>
-        <Text>{item.text}</Text>
+        <Text>{item.content}</Text>
       </View>
     </View>
   );

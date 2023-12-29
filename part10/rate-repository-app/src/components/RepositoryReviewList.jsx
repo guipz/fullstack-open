@@ -10,13 +10,12 @@ const styles = StyleSheet.create({
 
 const ItemSeparator = () => <View style={styles.separator} />;
 
-export const RepositoryReviewList = ({ query: { data } }) => {
-  const repositories = data ? data.repository.reviews.edges.map((r) => r.node) : [];
+export const RepositoryReviewList = ({ reviews, showInitialItemSeparator }) => {
 
   return (
     <FlatList
-      ListHeaderComponent={<ItemSeparator/>}
-      data={repositories}
+      ListHeaderComponent={ showInitialItemSeparator && <ItemSeparator />}
+      data={reviews}
       ItemSeparatorComponent={ItemSeparator}
       renderItem={({ item }) => <RepositoryReviewItem item={item} />}
     />

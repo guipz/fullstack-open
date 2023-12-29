@@ -8,8 +8,8 @@ import { StyleSheet, View } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  }
-})
+  },
+});
 
 const RepositoryView = () => {
   const id = useParams("/:id").id;
@@ -18,6 +18,15 @@ const RepositoryView = () => {
     variables: { repositoryId: id },
   });
   const reviewsQuery = useQuery(GET_REVIEWS, { variables: { id: id } });
+  let reviews = reviewsQuery.data
+    ? reviewsQuery.data.repository.reviews.edges.map((r) => r.node)
+    : [];
+  reviews = reviews.map((r) => ({
+    createdAt: r.createdAt,
+    rating: r.rating,
+    title: r.user.username,
+    content: r.text,
+  }));
 
   if (repositoriesQuery.data && reviewsQuery.data) {
     return (
@@ -26,9 +35,7 @@ const RepositoryView = () => {
           item={repositoriesQuery.data.repository}
           showOpenGitHubButton
         />
-        <RepositoryReviewList
-          query={reviewsQuery}
-        />
+        <RepositoryReviewList reviews={reviews} showInitialItemSeparator />
       </View>
     );
   }
