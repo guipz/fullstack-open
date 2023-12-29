@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: theme.colors.secondary,
     flexDirection: "row",
-    columnGap: 10
+    columnGap: 15
   },
 });
 

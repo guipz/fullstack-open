@@ -1,6 +1,7 @@
-import { Image, StyleSheet } from "react-native";
+import { Image, Linking, StyleSheet } from "react-native";
 import theme from "../Theme";
 import Text from "./Text";
+import Button from "./Button";
 
 const { View } = require("react-native");
 
@@ -15,20 +16,20 @@ const style = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    flexWrap: "wrap",
     columnGap: 15,
     padding: 15,
   },
   headerInfo: {
     flexWrap: "wrap",
     rowGap: 5,
+    flex: -1,
     alignItems: "flex-start",
   },
   stats: {
     flexDirection: "row",
     columnGap: 15,
     paddingBottom: 15,
-    paddingHorizontal: 15
+    paddingHorizontal: 15,
   },
   stat: {
     flexGrow: 1,
@@ -41,13 +42,26 @@ const style = StyleSheet.create({
     marginVertical: 5,
     padding: 5,
   },
+  button: {
+    padding: 15,
+    margin: 15,
+    marginTop: 0,
+  },
 });
 
-const RepositoryItem = ({ item }) => {
+const RepositoryItem = ({ item, showOpenGitHubButton }) => {
   return (
-    <View style={style.container}>
+    <View style={style.container} testID={`repositoryItem-${item.id}`}>
       <RepositoryItemHeader item={item} />
       <RepositoryItemStats item={item} />
+      {showOpenGitHubButton && (
+        <Button
+          onPress={() => Linking.openURL(item.url)}
+          fontSize={"subheading"}
+          style={style.button}
+          text={"Open in GitHub"}
+        />
+      )}
     </View>
   );
 };

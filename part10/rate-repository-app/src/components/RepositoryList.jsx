@@ -1,67 +1,108 @@
-import { FlatList, View, StyleSheet } from "react-native";
+import { FlatList, View, StyleSheet, Pressable } from "react-native";
 import RepositoryItem from "./RepositoryItem";
+import { GET_REPOSITORIES } from "../graphql/queries";
+import { Picker } from "@react-native-picker/picker";
+import TextInput from "./TextInput";
+
+import { useQuery } from "@apollo/client";
+import { useNavigate } from "react-router-native";
+import { useState } from "react";
+import theme from "../Theme";
+import { useDebounce } from "use-debounce";
 
 const styles = StyleSheet.create({
   separator: {
     height: 10,
+  },
+  pickerPromptHeader: {
+    color: theme.colors.textSecondary,
+  },
+  searchInput: {
+    margin: 10
   }
 });
 
-const repositories = [
-  {
-    id: "jaredpalmer.formik",
-    fullName: "jaredpalmer/formik",
-    description: "Build forms in React, without the tears",
-    language: "TypeScript",
-    forksCount: 1589,
-    stargazersCount: 21553,
-    ratingAverage: 88,
-    reviewCount: 4,
-    ownerAvatarUrl: "https://avatars2.githubusercontent.com/u/4060187?v=4",
+const orderingValues = {
+  latest: {
+    orderBy: "CREATED_AT",
+    orderDirection: "DESC",
   },
-  {
-    id: "rails.rails",
-    fullName: "rails/rails",
-    description: "Ruby on Rails",
-    language: "Ruby",
-    forksCount: 18349,
-    stargazersCount: 45377,
-    ratingAverage: 100,
-    reviewCount: 2,
-    ownerAvatarUrl: "https://avatars1.githubusercontent.com/u/4223?v=4",
+  highest: {
+    orderBy: "RATING_AVERAGE",
+    orderDirection: "DESC",
   },
-  {
-    id: "django.django",
-    fullName: "django/django",
-    description: "The Web framework for perfectionists with deadlines.",
-    language: "Python",
-    forksCount: 21015,
-    stargazersCount: 48496,
-    ratingAverage: 73,
-    reviewCount: 5,
-    ownerAvatarUrl: "https://avatars2.githubusercontent.com/u/27804?v=4",
-  },
-  {
-    id: "reduxjs.redux",
-    fullName: "reduxjs/redux",
-    description: "Predictable state container for JavaScript apps",
-    language: "TypeScript",
-    forksCount: 13902,
-    stargazersCount: 52869,
-    ratingAverage: 0,
-    reviewCount: 0,
-    ownerAvatarUrl: "https://avatars3.githubusercontent.com/u/13142323?v=4",
-  },
-];
+  lowest: {
+    orderBy: "RATING_AVERAGE",
+    orderDirection: "ASC",
+  }
+}
 
 const ItemSeparator = () => <View style={styles.separator} />;
 
-const RepositoryList = () => {
+export const RepositoryListContainer = ({
+  query: { data },
+  orderingValues,
+  onOrderingValueChange,
+  orderingValue,
+  onSearchKeywordChange,
+  searchKeyword,
+}) => {
+  const repositories = data ? data.repositories.edges.map((r) => r.node) : [];
+  const navigate = useNavigate();
+
   return (
     <FlatList
       data={repositories}
       ItemSeparatorComponent={ItemSeparator}
-      renderItem={({ item }) => <RepositoryItem item={item} />}
+      renderItem={({ item }) => (
+        <Pressable onPress={() => navigate(`/${item.id}`)}>
+          <RepositoryItem item={item} />
+        </Pressable>
+      )}
+      ListHeaderComponent={
+        <View>
+          <TextInput
+            style={styles.searchInput}
+            value={searchKeyword}
+            onChangeText={(e) => onSearchKeywordChange(e)}
+            placeholder="Search repository"
+          />
+          <Picker
+            selectedValue={orderingValue}
+            onValueChange={onOrderingValueChange}
+          >
+            <Picker.Item
+              enabled={false}
+              style={styles.pickerPromptHeader}
+              label="Select an item..."
+            />
+            <Picker.Item label="Latest repositories" value={orderingValues.latest} />
+            <Picker.Item label="Highest rated repositories" value={orderingValues.highest} />
+            <Picker.Item label="Lowest rated repositories" value={orderingValues.lowest} />
+          </Picker>
+        </View>
+      }
+    />
+  );
+};
+
+const RepositoryList = () => {
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [orderVariables, setOrderVariables] = useState(orderingValues.latest);
+  const [debouncedSearchKeyword] = useDebounce(searchKeyword, 500)
+
+  const query = useQuery(GET_REPOSITORIES, {
+    variables: { ...orderVariables, searchKeyword: debouncedSearchKeyword },
+  });
+
+  return (
+    <RepositoryListContainer
+      query={query}
+      orderingValues={orderingValues}
+      orderingValue={orderVariables}
+      onOrderingValueChange={setOrderVariables}
+      searchKeyword={searchKeyword}
+      onSearchKeywordChange={setSearchKeyword}
     />
   );
 };
